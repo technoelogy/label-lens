@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Label Lens · Technoelogy Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--cream:#F5F1E8;--cream-dark:#EBE5D4;--ink:#1A1A1A;--ink-soft:#4A4A4A;--ink-faint:#8A8A8A;--navy:#1E3A5F;--navy-light:#2E4F7D;--terracotta:#C65D3C;--sage:#6B8E6F;--rust:#A64B2A;--white:#FFFFFF;--hairline:#D4CFC0;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{background:var(--cream);color:var(--ink);font-family:'Inter',-apple-system,sans-serif;font-size:16px;line-height:1.6;min-height:100vh;}
+body{background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 31px,rgba(30,58,95,0.04) 31px,rgba(30,58,95,0.04) 32px);}
+.container{max-width:640px;margin:0 auto;padding:32px 20px 80px;}
+.lab-mark{display:flex;align-items:center;gap:8px;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:var(--navy);font-weight:600;margin-bottom:32px;}
+.lab-mark::before{content:"";width:24px;height:1px;background:var(--navy);}
+.lab-mark::after{content:"· Exhibit 02";color:var(--ink-faint);font-weight:400;}
+h1{font-family:'Fraunces',Georgia,serif;font-size:44px;font-weight:600;letter-spacing:-0.02em;line-height:1.05;color:var(--ink);margin-bottom:12px;}
+.tagline{font-size:17px;color:var(--ink-soft);margin-bottom:36px;max-width:480px;}
+.upload-zone{background:var(--white);border:2px dashed var(--navy);border-radius:8px;padding:48px 24px;text-align:center;cursor:pointer;transition:all 0.2s ease;display:block;}
+.upload-zone:hover{background:#FDFCF8;border-color:var(--navy-light);}
+.upload-zone.has-image{padding:20px;border-style:solid;border-color:var(--hairline);cursor:default;}
+.pack-illustration{width:56px;height:56px;margin:0 auto 16px;display:block;opacity:0.7;}
+.upload-label{font-family:'Fraunces',Georgia,serif;font-size:22px;font-weight:600;color:var(--ink);margin-bottom:6px;}
+.upload-sub{font-size:14px;color:var(--ink-faint);}
+#preview{max-width:100%;max-height:480px;display:none;margin:0 auto;border-radius:4px;}
+.upload-zone.has-image .pack-illustration,.upload-zone.has-image .upload-label,.upload-zone.has-image .upload-sub{display:none;}
+.upload-zone.has-image #preview{display:block;}
+.hidden-input{position:fixed !important;left:-9999px !important;top:-9999px !important;width:1px !important;height:1px !important;opacity:0 !important;pointer-events:none !important;}
+.actions{margin-top:20px;display:flex;flex-direction:column;gap:12px;}
+.btn{width:100%;padding:16px 24px;border:none;border-radius:6px;font-family:'Inter',sans-serif;font-size:16px;font-weight:600;cursor:pointer;transition:all 0.15s ease;letter-spacing:0.01em;}
+.btn-primary{background:var(--navy);color:var(--cream);}
+.btn-primary:hover:not(:disabled){background:var(--navy-light);}
+.btn-primary:disabled{opacity:0.5;cursor:not-allowed;}
+.btn-ghost{background:transparent;color:var(--navy);border:1px solid var(--hairline);font-size:14px;padding:12px 24px;}
+.btn-ghost:hover{background:var(--cream-dark);border-color:var(--navy);}
+.divider{text-align:center;color:var(--ink-faint);font-size:12px;letter-spacing:0.15em;text-transform:uppercase;position:relative;margin:4px 0;}
+.divider::before,.divider::after{content:"";position:absolute;top:50%;width:40%;height:1px;background:var(--hairline);}
+.divider::before{left:0;}
+.divider::after{right:0;}
+.status{margin-top:20px;padding:14px 18px;border-radius:6px;font-size:14px;display:none;}
+.status.loading{background:var(--cream-dark);color:var(--ink-soft);display:block;}
+.status.error{background:#F5E6E0;color:var(--rust);display:block;border-left:3px solid var(--rust);}
+.result{margin-top:32px;background:var(--white);border:1px solid var(--hairline);border-radius:8px;padding:36px 32px;display:none;}
+.result.active{display:block;}
+.result-header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding-bottom:20px;border-bottom:1px solid var(--hairline);margin-bottom:24px;}
+.product-name{font-family:'Fraunces',Georgia,serif;font-size:26px;font-weight:600;line-height:1.2;color:var(--ink);letter-spacing:-0.01em;}
+.product-type{display:inline-block;margin-top:8px;font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--navy);font-weight:600;}
+.confidence{flex-shrink:0;display:inline-block;padding:5px 12px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;border:1.5px solid;}
+.confidence.high{color:var(--sage);border-color:var(--sage);}
+.confidence.medium{color:var(--terracotta);border-color:var(--terracotta);}
+.confidence.low{color:var(--rust);border-color:var(--rust);}
+.section{margin-bottom:24px;}
+.section:last-child{margin-bottom:0;}
+.section-label{font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-faint);font-weight:600;margin-bottom:10px;}
+.section-body{font-size:15px;color:var(--ink);line-height:1.65;}
+.active-list,.warning-list,.doctor-list{list-style:none;padding:0;}
+.active-item{display:flex;justify-content:space-between;align-items:baseline;padding:10px 0;border-bottom:1px solid var(--hairline);gap:16px;}
+.active-item:last-child{border-bottom:none;}
+.active-name{font-weight:500;color:var(--ink);}
+.active-amount{font-size:13px;color:var(--ink-faint);font-variant-numeric:tabular-nums;white-space:nowrap;}
+.warning-item,.doctor-item{padding:10px 0 10px 20px;border-bottom:1px solid var(--hairline);position:relative;font-size:15px;}
+.warning-item:last-child,.doctor-item:last-child{border-bottom:none;}
+.warning-item::before{content:"";position:absolute;left:0;top:18px;width:8px;height:2px;background:var(--terracotta);}
+.doctor-item::before{content:"";position:absolute;left:0;top:18px;width:8px;height:2px;background:var(--navy);}
+.notes-box{margin-top:20px;padding:16px 18px;background:var(--cream);border-left:3px solid var(--ink-faint);border-radius:4px;font-size:13px;color:var(--ink-soft);line-height:1.6;font-style:italic;}
+footer{margin-top:60px;padding-top:24px;border-top:1px solid var(--hairline);font-size:12px;color:var(--ink-faint);text-align:center;line-height:1.8;}
+footer a{color:var(--navy);text-decoration:none;font-weight:500;border-bottom:1px solid var(--hairline);}
+footer a:hover{border-color:var(--navy);}
+.footer-mark{display:inline-flex;align-items:center;gap:6px;letter-spacing:0.1em;text-transform:uppercase;font-weight:600;color:var(--navy);font-size:11px;}
+@media (max-width:480px){h1{font-size:34px;}.result{padding:24px 20px;}.product-name{font-size:22px;}.result-header{flex-direction:column;gap:10px;}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="lab-mark">Technoelogy Lab</div>
+<h1>Label Lens</h1>
+<p class="tagline">Photograph a supplement or OTC pack. Get a plain-language read.</p>
+<label for="file-input" class="upload-zone" id="upload-zone">
+<svg class="pack-illustration" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="14" y="6" width="28" height="44" rx="2" stroke="#1E3A5F" stroke-width="1.5"/>
+<line x1="20" y1="16" x2="36" y2="16" stroke="#1E3A5F" stroke-width="1.5"/>
+<line x1="20" y1="22" x2="36" y2="22" stroke="#1E3A5F" stroke-width="1"/>
+<line x1="20" y1="27" x2="32" y2="27" stroke="#1E3A5F" stroke-width="1"/>
+<line x1="20" y1="32" x2="36" y2="32" stroke="#1E3A5F" stroke-width="1"/>
+<line x1="20" y1="37" x2="30" y2="37" stroke="#1E3A5F" stroke-width="1"/>
+<line x1="20" y1="42" x2="34" y2="42" stroke="#1E3A5F" stroke-width="1"/>
+</svg>
+<div class="upload-label">Tap to add a photo</div>
+<div class="upload-sub">Back-of-pack works best</div>
+<img id="preview" alt="Preview" />
+</label>
+<input type="file" id="file-input" class="hidden-input" accept="image/*" />
+<div class="actions">
+<button class="btn btn-primary" id="decode-btn" disabled>Decode label</button>
+<div class="divider">or</div>
+<button class="btn btn-ghost" id="sample-btn">Try with sample pack</button>
+</div>
+<div class="status" id="status"></div>
+<div class="result" id="result">
+<div class="result-header">
+<div>
+<div class="product-name" id="r-name"></div>
+<div class="product-type" id="r-type"></div>
+</div>
+<span class="confidence" id="r-confidence"></span>
+</div>
+<div class="section"><div class="section-label">What it is</div><div class="section-body" id="r-what-is"></div></div>
+<div class="section"><div class="section-label">What it's for</div><div class="section-body" id="r-what-for"></div></div>
+<div class="section"><div class="section-label">Key actives</div><ul class="active-list" id="r-actives"></ul></div>
+<div class="section"><div class="section-label">Standard dose</div><div class="section-body" id="r-dose"></div></div>
+<div class="section"><div class="section-label">Warnings</div><ul class="warning-list" id="r-warnings"></ul></div>
+<div class="section"><div class="section-label">Ask your doctor if</div><ul class="doctor-list" id="r-doctor"></ul></div>
+<div class="section" id="notes-section" style="display:none;"><div class="section-label">Notes</div><div class="notes-box" id="r-notes"></div></div>
+</div>
+<footer>Not medical advice. Always consult a pharmacist or doctor.<br/><br/><span class="footer-mark">Technoelogy Lab</span> · <a href="https://technoelogy.com">technoelogy.com</a></footer>
+</div>
+<script>
+const SAMPLE_RESULT={"product_name":"ENO Fruit Salt - Lemon Flavour","product_type":"supplement","what_it_is":"An Ayurvedic proprietary medicine in lemon-flavoured sachet form. Gets to work in 8 seconds and is gentle on your stomach.","what_its_for":"For relieving acidity.","key_actives":[{"name":"Svarjiksara (Shudh)","amount":"2.91 g"},{"name":"Nimbukamlam (Shushkam)","amount":"2.04 g"},{"name":"Sodium Saccharin","amount":"5 mg/5 g"}],"standard_dose":"One sachet in a glass of water. Repeat after 2-3 hours if necessary. Do not take more than one dose at a time.","key_warnings":["Do not use if you have any liver, kidney conditions and/or high blood pressure","Do not use if sachet is damaged or open","Contains no fruit pulp"],"ask_doctor_if":["Symptoms persist","You are pregnant or lactating"],"confidence":"medium","notes":"OCR captured core details clearly. Dosage limit phrase was partially truncated on the pack. Manufactured for GlaxoSmithKline Asia Pvt. Ltd."};
+const fileInput=document.getElementById('file-input');
+const uploadZone=document.getElementById('upload-zone');
+const preview=document.getElementById('preview');
+const decodeBtn=document.getElementById('decode-btn');
+const sampleBtn=document.getElementById('sample-btn');
+const statusEl=document.getElementById('status');
+const resultEl=document.getElementById('result');
+let currentImageData=null;
+fileInput.addEventListener('change',(e)=>{
+const file=e.target.files[0];
+if(!file)return;
+const reader=new FileReader();
+reader.onload=(ev)=>{
+currentImageData=ev.target.result;
+preview.src=currentImageData;
+uploadZone.classList.add('has-image');
+decodeBtn.disabled=false;
+resultEl.classList.remove('active');
+statusEl.style.display='none';
+};
+reader.readAsDataURL(file);
+});
+decodeBtn.addEventListener('click',async()=>{
+if(!currentImageData)return;
+statusEl.className='status loading';
+statusEl.textContent='Reading the label...';
+decodeBtn.disabled=true;
+resultEl.classList.remove('active');
+try{
+const res=await fetch('/api/decode',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({image:currentImageData})});
+const data=await res.json();
+if(!res.ok||data.error){throw new Error(data.error||'Something went wrong');}
+renderResult(data);
+statusEl.style.display='none';
+}catch(err){
+statusEl.className='status error';
+statusEl.textContent=err.message||'Could not decode the label. Try a sharper photo.';
+}finally{decodeBtn.disabled=false;}
+});
+sampleBtn.addEventListener('click',()=>{
+statusEl.style.display='none';
+renderResult(SAMPLE_RESULT);
+window.scrollTo({top:resultEl.offsetTop-20,behavior:'smooth'});
+});
+function renderResult(data){
+document.getElementById('r-name').textContent=data.product_name||'Unknown product';
+document.getElementById('r-type').textContent=(data.product_type||'').toUpperCase();
+const conf=(data.confidence||'low').toLowerCase();
+const confEl=document.getElementById('r-confidence');
+confEl.textContent=conf;
+confEl.className='confidence '+conf;
+document.getElementById('r-what-is').textContent=data.what_it_is||'-';
+document.getElementById('r-what-for').textContent=data.what_its_for||'-';
+document.getElementById('r-dose').textContent=data.standard_dose||'-';
+const activesEl=document.getElementById('r-actives');
+activesEl.innerHTML='';
+(data.key_actives||[]).forEach(a=>{const li=document.createElement('li');li.className='active-item';li.innerHTML='<span class="active-name">'+a.name+'</span><span class="active-amount">'+(a.amount||'')+'</span>';activesEl.appendChild(li);});
+const warnEl=document.getElementById('r-warnings');
+warnEl.innerHTML='';
+(data.key_warnings||[]).forEach(w=>{const li=document.createElement('li');li.className='warning-item';li.textContent=w;warnEl.appendChild(li);});
+const docEl=document.getElementById('r-doctor');
+docEl.innerHTML='';
+(data.ask_doctor_if||[]).forEach(d=>{const li=document.createElement('li');li.className='doctor-item';li.textContent=d;docEl.appendChild(li);});
+const notesSec=document.getElementById('notes-section');
+if(data.notes){notesSec.style.display='block';document.getElementById('r-notes').textContent=data.notes;}else{notesSec.style.display='none';}
+resultEl.classList.add('active');
+}
+</script>
+</body>
+</html>
